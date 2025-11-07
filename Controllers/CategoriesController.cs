@@ -80,7 +80,7 @@ namespace ApiEcommerce.Controllers
             return CreatedAtRoute("GetCategory", new { id = category.Id }, category);   
         }
 
-        [HttpPatch("{id:int}",Name = "UpdateCategory")] 
+        [HttpPatch("{id:int}", Name = "UpdateCategory")]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -110,6 +110,35 @@ namespace ApiEcommerce.Controllers
             if (!_categoryRepository.UpdateCategory(category))
             {
                 ModelState.AddModelError("CustomError", $"Algo salió mal al actualizar la categoría {category.Name}.");
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
+        }
+        
+        [HttpDelete("{id:int}",Name = "DeleteCategory")] 
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public IActionResult DeleteCategory(int id)
+        {
+            if (!_categoryRepository.CategoryExists(id))
+            {
+                return NotFound($"La categoría con Id {id} no existe.");
+            }
+
+            var category = _categoryRepository.GetCategory(id);
+            if (category == null)
+            {
+                return NotFound($"La categoría con Id {id} no existe.");
+            }
+           
+
+            if (!_categoryRepository.DeleteCategory(category))
+            {
+                ModelState.AddModelError("CustomError", $"Algo salió mal al eliminar la categoría {category.Name}.");
                 return StatusCode(500, ModelState);
             }
 
