@@ -87,6 +87,23 @@ namespace ApiEcommerce.Controllers
 
             return CreatedAtRoute("GetProduct", new { productId = product.ProductId },  productDto);   
         }
+
+        [HttpGet("searchByCategory/{categoryId:int}", Name = "GetProductsForCategory")]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public IActionResult GetProductsForCategory(int categoryId)
+        {
+            var products = _productRepository.GetProductsForCategory(categoryId);
+            if (products.Count == 0)
+            {
+                return NotFound($"Los productos con la categoria {categoryId} no existe.");
+            }
+            var productsDto = _mapper.Map<List<ProductDto>>(products);
+
+            return Ok(productsDto);
+        }
         
     }
 }
