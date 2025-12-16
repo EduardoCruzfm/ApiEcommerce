@@ -100,12 +100,15 @@ public class ProductRepository : IProductRepository
         return _db.SaveChanges() >= 0 ? true : false;
     }
 
-    public ICollection<Product> SearchProduct(string name)
+    public ICollection<Product> SearchProducts(string searchTerm)
     {
         IQueryable<Product> query = _db.Products;
-        if (!string.IsNullOrWhiteSpace(name))
+        var searchTermLower = searchTerm.ToLower().Trim();
+        if (!string.IsNullOrWhiteSpace(searchTerm))
         {
-            query = query.Where(p => p.Name.ToLower().Trim() == name.ToLower().Trim());
+            query = query.Include(p => p.Category).Where(
+                p => p.Name.ToLower().Trim().Contains(searchTermLower) ||
+                p.Description.ToLower().Trim().Contains(searchTermLower));
         }
         return query.OrderBy(p => p.Name).ToList();
     }
